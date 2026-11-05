@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
     <header class="barra">
       <strong>Habeas · Admin</strong>
       <nav>
+        <a routerLink="/admin" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
         <a routerLink="/admin/usuarios" routerLinkActive="activo">Usuarios</a>
         <a routerLink="/admin/tramites" routerLinkActive="activo">Trámites</a>
         <a routerLink="/admin/tarifas" routerLinkActive="activo">Tarifas</a>

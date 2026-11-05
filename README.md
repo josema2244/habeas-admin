@@ -1,126 +1,103 @@
 # Habeas Admin
 
-![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)
-![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?logo=postgresql&logoColor=white)
+Trabajo de Ingeniería Web (UDLA). Es el módulo de administración de Habeas, un sistema para llevar el cumplimiento de la Ley Orgánica de Protección de Datos Personales de Ecuador. El core del sistema calcula el riesgo de cada trámite que maneja datos personales. Esta parte sirve para administrar lo que usa ese core: los usuarios, los trámites y las tarifas de riesgo.
 
-## Índice
+El frontend está hecho en Angular, el backend en PHP y la base de datos en PostgreSQL (Supabase).
 
-- [Descripción](#descripción)
-- [Estado del proyecto](#estado-del-proyecto)
-- [Funcionalidades](#funcionalidades)
-- [Cómo está organizado el MVC](#cómo-está-organizado-el-mvc)
-- [Cómo ejecutarlo](#cómo-ejecutarlo)
-- [Publicación](#publicación)
-- [Tecnologías](#tecnologías)
-- [Autor](#autor)
-- [Licencia](#licencia)
+## Qué hace
 
-## Descripción
+- Login con token JWT. Solo el rol Administrador puede entrar a este módulo.
+- Usuarios: crear, editar y activar o desactivar. Cada usuario tiene un rol y un área.
+- Trámites: crear, editar y activar o desactivar. Cada trámite tiene categoría de datos, área y responsable.
+- Tarifas de riesgo: cambiar el valor de cada regla. Cada vez que se cambia una, sube la versión de las reglas.
 
-Este proyecto es el módulo de administración de Habeas, mi trabajo de Ingeniería Web (ISWZ3101) en la UDLA. Habeas es un sistema para gestionar el cumplimiento de la Ley Orgánica de Protección de Datos Personales de Ecuador. Su core calcula el riesgo de cada trámite de tratamiento de datos.
+Todavía no está el cálculo de riesgo de las declaraciones ni el reporte por fechas, porque eso es el core y no entra en esta entrega.
 
-La administración alimenta ese core. Desde aquí se gestionan los usuarios, los trámites que se evalúan y las tarifas con las que se calcula el puntaje de riesgo.
+## Validación en el servidor
 
-La interfaz está hecha en Angular y consume una API en PHP que responde JSON. Los datos viven en PostgreSQL, alojado en Supabase.
+La cédula se valida en el backend (PHP) antes de guardarla en la base, con el algoritmo de la cédula ecuatoriana. En Angular no se valida, así que si la cédula está mal el error lo manda la API. Además no se puede repetir.
 
-## Estado del proyecto
+También se validan en el servidor el correo (formato y que no esté repetido), la contraseña (mínimo 8 caracteres con letras y números) y los valores de las tarifas (número entero entre 0 y 100, y el umbral Bajo tiene que ser menor que el Medio).
 
-El módulo de administración está terminado. El cálculo de riesgo de las declaraciones y el reporte por rango de fechas pertenecen al core y no están incluidos en esta entrega.
+## Listas desplegables
 
-## Funcionalidades
+Ningún formulario pide una clave foránea escrita a mano. El rol, el área, la categoría de datos y el tipo de regla se eligen de listas que salen de la base de datos.
 
-- Inicio de sesión con token JWT. Solo el rol Administrador entra a este módulo.
-- Usuarios: crear, editar, activar y desactivar. Cada usuario tiene rol y área.
-- Trámites: crear, editar, activar y desactivar. Cada trámite tiene categoría de datos, área y responsable.
-- Tarifas de riesgo: editar el valor de cada regla. Cada cambio sube la versión de las reglas.
+Hay dos listas en cascada:
 
-**Validación en el servidor de datos sensibles.** La cédula se valida en PHP antes de guardarla, con el algoritmo de la cédula ecuatoriana (módulo 10), y no puede repetirse. Angular no la valida: si la cédula es inválida, el error viene de la API. También se validan el correo (formato y unicidad), la contraseña (mínimo 8 caracteres con letras y números) y los valores de las tarifas (entero entre 0 y 100, con el umbral Bajo menor que el Medio).
+- En Trámites, cuando elijo el área, la lista de responsables se llena solo con los responsables de esa área. El servidor también rechaza un responsable que no sea de esa área.
+- En Tarifas, cuando elijo el tipo de regla, la lista de reglas muestra solo las de ese tipo.
 
-**Relaciones con listas desplegables.** Ningún formulario pide una clave foránea escrita a mano. Rol, área, categoría de datos y tipo de regla se eligen de listas que salen de la base. Hay dos cascadas:
+Video de la explicación: TU-ENLACE-DE-YOUTUBE
 
-- En Trámites, al elegir el área, la lista de responsables se carga solo con los responsables de esa área. El servidor también rechaza un responsable que no pertenezca al área elegida.
-- En Tarifas, al elegir el tipo de regla, la lista de reglas se carga solo con las de ese tipo.
+## Cómo está organizado
 
+Seguí el patrón MVC separado por capas.
 
-Video de la explicación: ""
-
-## Cómo está organizado el MVC
-
-- **Vista:** `frontend/src/app/`. Cada pantalla es un componente de Angular (`usuarios.ts`, `tramites.ts`, `tarifas.ts`, `login.ts`).
-- **Controlador:** `backend/src/controllers/`. Reciben la petición, validan, consultan la base y responden JSON.
-- **Modelo:** las reglas de validación están en `backend/src/validators.php` y el acceso a PostgreSQL en `backend/src/db.php`, con consultas parametrizadas.
-- **Rutas:** `backend/public/index.php`.
-- **Seguridad:** `backend/src/jwt.php` crea y verifica el token, y `exigirRol()` bloquea a quien no tenga el rol permitido. En Angular, `auth.guard.ts` protege las rutas y `auth.interceptor.ts` envía el token en cada petición.
-
-El recorrido de una petición es: Angular, interceptor, `index.php`, middleware de rol, controlador, PostgreSQL.
+- Vista: los componentes de Angular en `frontend/src/app/` (login, usuarios, trámites y tarifas).
+- Controlador: los archivos de `backend/src/controllers/`. Reciben la petición, validan, consultan la base y responden en JSON.
+- Modelo: las validaciones están en `backend/src/validators.php` y la conexión a la base en `backend/src/db.php`. Las consultas van con parámetros.
+- Rutas: `backend/public/index.php`.
+- Seguridad: `backend/src/jwt.php` crea y revisa el token, y la función `exigirRol()` bloquea a quien no tenga el rol permitido. En Angular, `auth.guard.ts` protege las rutas y `auth.interceptor.ts` manda el token en cada petición.
 
 ## Cómo ejecutarlo
 
-Necesitas PHP 8.3 con la extensión `pdo_pgsql`, Node.js, el CLI de Angular (`npm install -g @angular/cli`) y una cuenta gratuita de Supabase.
+Necesito tener instalado PHP 8.3 con la extensión `pdo_pgsql`, Node.js y el CLI de Angular. También una cuenta de Supabase.
 
-1. Clona el repositorio:
+1. Clonar el repositorio:
 
-   ```bash
+   ```
    git clone https://github.com/josema2244/habeas-admin.git
    cd habeas-admin
    ```
 
-2. Crea un proyecto en Supabase y, en el SQL Editor, ejecuta en este orden los archivos de la carpeta `database`: `01_habeas.sql`, `02_datos_demo.sql` y `03_admin.sql`.
+2. En Supabase, abrir el SQL Editor y ejecutar en orden los archivos de la carpeta `database`: `01_habeas.sql`, `02_datos_demo.sql` y `03_admin.sql`.
 
-3. Genera la contraseña de prueba y guárdala en los usuarios demo:
+3. Generar la contraseña de prueba:
 
-   ```bash
+   ```
    php -r "echo password_hash('Admin2026!', PASSWORD_BCRYPT);"
    ```
 
-   Copia el resultado y ejecútalo en el SQL Editor:
+   Con el resultado, ejecutar en el SQL Editor:
 
    ```sql
    UPDATE users SET password_hash = 'EL_HASH_GENERADO';
    ```
 
-4. Configura y levanta el backend. Copia `backend/.env.example` como `backend/.env`, completa los datos de conexión de Supabase (Connect, Session pooler) y corre:
+4. Backend. Copiar `backend/.env.example` como `backend/.env` y poner los datos de conexión de Supabase (en Connect, Session pooler). Después:
 
-   ```bash
+   ```
    cd backend
    php -S localhost:8000 -t public public/index.php
    ```
 
-   Al abrir `http://localhost:8000/health` debe responder `"estado":"OK"`.
+   Si abro `http://localhost:8000/health` debe decir `"estado":"OK"`.
 
-5. Levanta el frontend:
+5. Frontend:
 
-   ```bash
+   ```
    cd frontend
    npm install
    ng serve
    ```
 
-   Abre `http://localhost:4200`. La URL de la API está en `frontend/src/app/config.ts`.
+   Se abre en `http://localhost:4200`. La URL de la API está en `frontend/src/app/config.ts`.
 
-Usuario de prueba: `admin@habeas.com` con la contraseña `Admin2026!`. Los otros dos usuarios demo no pueden entrar a este módulo.
+Para probar: `admin@habeas.com` con la contraseña `Admin2026!`. Los otros dos usuarios de prueba no pueden entrar a este módulo porque no son administradores.
 
-## Publicación
+## Publicado en
 
 - Aplicación: TU-URL-DEL-FRONTEND
 - API: TU-URL-DEL-BACKEND
-- Base de datos: Supabase (PostgreSQL)
+- Base de datos: Supabase
 
-El backend corre en Docker en Render y el frontend como sitio estático en Render. En el plan gratuito el backend se duerme tras unos minutos sin uso, así que la primera petición puede tardar casi un minuto.
+El backend está en Render con Docker y el frontend en Render como sitio estático. En el plan gratis el backend se duerme si no lo usan, así que la primera vez puede demorar casi un minuto en responder.
 
 ## Tecnologías
 
-- Angular con formularios reactivos y signals
-- PHP 8.3 sin framework, con PDO
-- PostgreSQL en Supabase
-- JWT para la autenticación
-- Docker y Render para el deploy
+Angular, PHP 8.3, PostgreSQL (Supabase), JWT, Docker y Render.
 
 ## Autor
 
 José Jáuregui
-
-## Licencia
-
-Proyecto académico.

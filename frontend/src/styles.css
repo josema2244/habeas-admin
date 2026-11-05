@@ -19,6 +19,10 @@ body {
   color: var(--texto);
 }
 
+/* Layout general: la página es una columna flex; el contenido ocupa el espacio sobrante */
+app-root, app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+app-shell > .contenido { flex: 1; width: 100%; }
+
 h1, h2, h3 { margin: 0 0 8px; }
 
 .barra {
@@ -29,7 +33,7 @@ h1, h2, h3 { margin: 0 0 8px; }
   background: var(--acento);
   color: #fff;
 }
-.barra nav { display: flex; gap: 4px; flex: 1; }
+.barra nav { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
 .barra a {
   color: #c9d6e2;
   text-decoration: none;
@@ -49,16 +53,21 @@ h1, h2, h3 { margin: 0 0 8px; }
   margin-bottom: 20px;
 }
 
+.accesos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.acceso { display: block; text-decoration: none; color: inherit; margin-bottom: 0; transition: box-shadow 0.15s, transform 0.15s; }
+.acceso:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+.acceso h3 { margin: 0 0 6px; color: var(--acento); }
+.acceso p { margin: 0; color: var(--suave); font-size: 14px; }
+
 .login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
 .login .card { width: 100%; max-width: 380px; }
 .login h1 { font-size: 32px; color: var(--acento); }
 .sub { margin: 0 0 16px; color: var(--suave); }
 
-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; margin-bottom: 14px; }
 input, select, textarea {
   display: block;
   width: 100%;
-  margin-top: 6px;
   padding: 9px 10px;
   border: 1px solid var(--borde);
   border-radius: 6px;
@@ -100,5 +109,6 @@ th { color: var(--suave); font-size: 12px; text-transform: uppercase; letter-spa
   table { display: block; overflow-x: auto; }
 }
 
-.encabezado { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.encabezado { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.acceso { display: flex; flex-direction: column; justify-content: center; }
 textarea { resize: vertical; }

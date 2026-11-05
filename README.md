@@ -28,7 +28,7 @@ Hay dos listas en cascada:
 - En Trámites, cuando elijo el área, la lista de responsables se llena solo con los responsables de esa área. El servidor también rechaza un responsable que no sea de esa área.
 - En Tarifas, cuando elijo el tipo de regla, la lista de reglas muestra solo las de ese tipo.
 
-Video de la explicación: TU-ENLACE-DE-YOUTUBE
+Video de la explicación: 
 
 ## Cómo está organizado
 
@@ -89,8 +89,6 @@ Para probar: `admin@habeas.com` con la contraseña `Admin2026!`. Los otros dos u
 ## Publicado en
 
 - Aplicación: TU-URL-DEL-FRONTEND
-- API: TU-URL-DEL-BACKEND
-- Base de datos: Supabase
 
 El backend está en Render con Docker y el frontend en Render como sitio estático. En el plan gratis el backend se duerme si no lo usan, así que la primera vez puede demorar casi un minuto en responder.
 

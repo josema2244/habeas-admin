@@ -88,8 +88,8 @@ Para probar: `admin@habeas.com` con la contraseña `Admin2026!`. Los otros dos u
 
 ## Publicado en
 
-- Aplicación: TU-URL-DEL-FRONTEND
-
+- Aplicación: https://habeas-admin.onrender.com
+- video: https://youtu.be/FC3BSpEz9hE  
 El backend está en Render con Docker y el frontend en Render como sitio estático. En el plan gratis el backend se duerme si no lo usan, así que la primera vez puede demorar casi un minuto en responder.
 
 ## Tecnologías
